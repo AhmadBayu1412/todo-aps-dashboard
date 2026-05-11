@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Todo Apps Dashboard</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+</head>
+
+<body>
+  <!-- APP -->
+  <div class="tf-app">
+
+    <!-- SIDEBAR -->
+    <aside class="tf-sidebar">
+
+      <!-- Logo -->
+      <div class="tf-logo">
+        <div class="tf-logo-icon">B</div>
+        <span class="tf-logo-text">TaskFlow</span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="tf-nav">
+        <div class="tf-nav-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
+        <div class="tf-nav-item"><i class="ti ti-list-check" aria-hidden="true"></i> Tasks</div>
+        <div class="tf-nav-item"><i class="ti ti-calendar" aria-hidden="true"></i> Calendar</div>
+        <div class="tf-nav-item"><i class="ti ti-chart-bar" aria-hidden="true"></i> Analytics</div>
+        <div class="tf-nav-item"><i class="ti ti-note" aria-hidden="true"></i> Notes</div>
+        <div class="tf-nav-item"><i class="ti ti-settings" aria-hidden="true"></i> Settings</div>
+      </nav>
+
+      <!-- Upgrade Pro -->
+      <div class="tf-upgrade">
+        <div class="tf-upgrade-title">🚀 Upgrade to Pro</div>
+        <div class="tf-upgrade-text">Unlock all features and get unlimited support</div>
+        <button class="tf-upgrade-btn">Upgrade Now</button>
+      </div>
+
+      <!-- User Profile -->
+      <div class="tf-user">
+        <div class="tf-avatar">AB</div>
+        <div class="tf-user-info">
+          <div class="tf-user-name">AhmadBayu</div>
+          <div class="tf-user-email">ahmadbayu1412</div>
+        </div>
+      </div>
+
+      <i class="ti ti-chevron-down" style="font-size: 14px; color: #64748b;" aria-hidden="true"></i>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="tf-main">
+
+      <!-- Topbar -->
+      <div class="tf-topbar">
+
+        <!-- Greeting -->
+        <div class="tf-greating">
+          <h2>Hello, AhmadBayu!👋</h2>
+          <p>Here's what's happening with your tasks today.</p>
+        </div>
+
+        <!-- Search -->
+        <div class="tf-search">
+          <i class="ti ti-search" style="font-size: 15px; color: #94a3b8;cursor: pointer;" aria-hidden="true"></i>
+          <input type="text" placeholder="Search tasks...">
+        </div>
+
+        <i class="ti ti-bell" style="font-size: 20px; color: #94a3b8; cursor: pointer;" aria-hidden="true"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="tf-content">
+
+        <!-- Stats -->
+        <div class="tf-stats">
+
+          <!-- Total Tasks -->
+          <div class="tf-stat">
+            <div class="tf-stat-label">
+              <i class="ti ti-checkbox" aria-hidden="true"></i>
+              Total Tasks
+            </div>
+
+            <div class="tf-stat-value">24</div>
+
+            <svg class="tf-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none">
+              <polyline points="0,20 20,16 40,18 60,10 80,13 100,8" fill="none" stroke="#6c63ff" stroke-width="2" />
+            </svg>
+
+            <div class="tf-stat-sub">Tasks overall</div>
+          </div>
+
+          <!-- Completed Tasks -->
+          <div class="tf-stat">
+            <div class="tf-stat-label">
+              <i class="ti ti-check" aria-hidden="true"></i>
+              Completed Tasks
+            </div>
+
+            <div class="tf-stat-value">12</div>
+
+            <svg class="tf-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none">
+              <polyline points="0,22 20,18 40,15 60,12 80,9 100,6" fill="none" stroke="#22c55e" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+
+            <div class="tf-stat-sub">Tasks done</div>
+
+          </div>
+
+          <!-- Productivity -->
+          <div class="tf-stat">
+
+            <div class="tf-stat-label">
+              <i class="ti ti-trending-up" aria-hidden="true"></i>
+              Productivity Score
+            </div>
+
+            <div class="tf-stat-value">92%</div>
+
+            <svg class="tf-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none">
+              <polyline points="0,14 20,16 40,10 60,14 80,12 100,10" fill="none" stroke="#a78bfa" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+
+            <div class="tf-stat-sub">Excellent</div>
+          </div>
+
+          <!-- Progress -->
+          <div class="tf-stat">
+
+            <div class="tf-stat-label">Today's Progress</div>
+
+            <div class="tf-stat-value">70%</div>
+
+            <div class="tf-progress-motivtext" style="font-size: 10px; color: #64748b; margin: 4px 0 6px;">
+              Keep going! You're doing great.
+            </div>
+            <div class="tf-progress-bar">
+              <div class="tf-progress-fill"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Add Task -->
+        <div class="tf-add-task">
+
+          <div class="tf-add-header">
+            <i class="ti ti-circle-plus" aria-hidden="true"></i>
+            Add New Task
+          </div>
+
+          <!-- Input Fields -->
+          <form id="form" class="tf-add-inputs">
+            <input id="input" class="tf-input" placeholder="What do you want to accomplish?" style="flex: 2;">
+            <input id="date" class="tf-input" type="date" placeholder="Select date">
+
+            <select id="task-column" class="tf-select">
+              <option value="todo">📑 To Do</option>
+              <option value="progress">⚡ In Progress</option>
+              <option value="completed">✅ Completed</option>
+            </select>
+            <select id="task-priority" class="tf-select">
+              <option value="high">🔴 High</option>
+              <option value="medium">🟡 Medium</option>
+              <option value="low">🔵 Low</option>
+            </select>
+
+            <button class="tf-btn-add">Add Task</button>
+
+            <div class="tf-add-extra" id="add-extra">
+              <textarea id="task-desc" class="tf-input tf-textarea"
+                placeholder="Add a description (optional)..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="tf-kanban">
+          <!-- TODO_List ToDo -->
+          <div id="todo-container" class="tf-col">
+
+            <div class="tf-col-header">
+              <div class="tf-col-title">
+                <i class="ti ti-clipboard" aria-hidden="true"></i>
+                To Do
+              </div>
+              <span id="todo-count" class="tf-col-count">0</span>
+            </div>
+
+            <div id="todo-list" class="todo-list"></div>
+
+            <!-- Card Contoh -->
+            <!-- <div class="tf-card">
+
+              <div class="tf-card-header">
+                <div class="tf-card-check"></div>
+                <div class="tf-card-title">Belajar React</div>
+                <i class="ti ti-dots-vertical" style="font-size: 15px; color: #64748b; cursor: pointer;"
+                  aria-hidden="true"></i>
+              </div>
+
+              <div class="tf-card-desc">Pelajari dasar-dasar React dan buat aplikasi sederhana.</div>
+
+              <div class="tf-card-footer">
+                <span class="tf-badge high">High</span>
+                <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
+                  25 May 2026
+                </span>
+              </div>
+
+            </div> -->
+
+            <div class="tf-add-link">
+              <i class="ti ti-plus" aria-hidden="true"></i>
+              Add Task
+            </div>
+
+          </div>
+
+          <!-- TODO_In Progress Column -->
+          <div id="progress-container" class="tf-col active">
+
+            <div class="tf-col-header">
+              <div class="tf-col-title" style="color: #a78bfa;">
+                <i class="ti ti-loader" style="color: #a78bfa;" aria-hidden="true"></i>
+                In Progress
+              </div>
+              <span id="progress-count" class="tf-col-count">0</span>
+            </div>
+
+            <div id="progress-list" class="progress-list"></div>
+
+
+            <!-- Card 1 -->
+            <!-- <div class="tf-card" style="background: rgba(108,99, 255, 0.08); border-color: rgba(108, 99, 255, 0.2);">
+
+              <div class="tf-card-header">
+                <div class="tf-card-check"></div>
+                <div class="tf-card-title">Desain UI Portfolio</div>
+                <i class="ti ti-dots-vertical" style="font-size: 15px; color: #64748b; cursor: pointer;"
+                  aria-hidden="true"></i>
+              </div>
+
+              <div class="tf-card-desc">Buat desain portfolio pribadi</div>
+
+              <div class="tf-card-footer">
+                <span class="tf-badge low">Low</span>
+                <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
+                  15 May 2026
+                </span>
+              </div>
+
+            </div> -->
+
+            <!-- Card 2 -->
+            <!-- <div class="tf-card" style="background: rgba(108, 99, 255, 0.08); border-color: rgba(108, 99, 255, 0.2);">
+
+              <div class="tf-card-header">
+                <div class="tf-card-check"></div>
+                <div class="tf-card-title">Setup Database</div>
+                <i class="ti ti-dots-vertical" style="font-size: 15px; color: #64748b; cursor: pointer;"
+                  aria-hidden="true"></i>
+              </div>
+
+              <div class="tf-card-desc">Setup Postgress dan tabel relasi</div>
+
+              <div class="tf-card-footer">
+                <span class="tf-badge high">High</span>
+                <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
+                  20 May 2026
+                </span>
+
+              </div>
+
+            </div> -->
+
+            <div class="tf-add-link" style="color: #a78bfa;">
+              <i class="ti ti-plus" aria-hidden="true"></i>
+              Add Task
+            </div>
+
+          </div>
+
+          <!-- TODO_Completed Column -->
+          <div id="completed-container" class="tf-col">
+
+            <div class="tf-col-header">
+              <div class="tf-col-title">
+                <i class="ti ti-circle-check" style="color: #22c55e;" aria-hidden="true"></i>
+                Completed
+              </div>
+              <span id="completed-count" class="tf-col-count">0</span>
+            </div>
+
+            <div id="completed-list" class="completed-list"></div>
+
+
+            <!-- Card 1 -->
+            <!-- <div class="tf-card">
+  
+                <div class="tf-card-header">
+                  <div class="tf-card-check done">
+                    <i class="ti ti-check" style="font-size: 10px;" aria-hidden="true"></i>
+                  </div>
+                  <div class="tf-card-title done">Membuat Landing Page</div>
+                  <div class="tf-card-actions">
+                    <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
+                    <i class="ti ti-trash" aria-hidden="true"></i>
+                  </div>
+                </div>
+  
+                <div class="tf-card-desc">Landing page untuk produk</div>
+  
+                <div class="tf-card-footer">
+                  <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
+                    10 May 2026
+                  </span>
+                </div>
+  
+              </div> -->
+
+            <!-- Card 2 -->
+            <!-- <div class="tf-card">
+
+              <div class="tf-card-header">
+                <div class="tf-card-check done">
+                  <i class="ti ti-check" style="font-size: 10px;" aria-hidden="true"></i>
+                </div>
+                <div class="tf-card-title done">Setup Project Next.js</div>
+                <div class="tf-card-actions">
+                  <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
+                  <i class="ti ti-trash" aria-hidden="true"></i>
+                </div>
+              </div>
+
+              <div class="tf-card-desc">Inisialisasi project Next.js</div>
+
+              <div class="tf-card-footer">
+                <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
+                  18 May 2026
+                </span>
+              </div>
+
+            </div> -->
+
+            <div class="tf-add-link">
+              <i class="ti ti-plus" aria-hidden="true"></i>
+              Add Task
+            </div>
+
+          </div>
+        </div>
+
+    </main>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  <!-- <header>
+    <h1>Todo List</h1>
+  </header>
+
+  <div class="wrapper">
+    <div class="container bg-white shadow" id="add-todo">
+      <h2 class="container-header text-center">Tambah yang harus dilakukan</h2>
+
+      <form class="form" action="#" id="form">
+        <div class="form-group form-title">
+          <label for="title">Masukkan hal yang akan dilakukan</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+
+        <div class="form-group form-title">
+          <label for="date">Masukkan tanggal harus selesai</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+
+        <input type="submit" value="Submit" name="Submit" class="btn-submit">
+      </form>
+    </div>
+  </div> -->
+
+  <script src="scripts.js" type="text/javascript"></script>
+</body>
+
+</html>
