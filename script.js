@@ -1,3 +1,18 @@
+// =============================================================================
+// TASKFLOW — Main Application Script
+// =============================================================================
+// Handles all task management logic including:
+//   - Creating, editing, and deleting tasks
+//   - Moving tasks across Kanban columns (To Do → In Progress → Completed)
+//   - Persisting data to localStorage
+//   - Rendering task cards and updating the UI
+//   - Analytics calculations and sparkline charts
+//   - Analytics modal and Task (add/edit) modal
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// DOM References — Add Task Form
+// -----------------------------------------------------------------------------
 const submitForm = document.getElementById('form');
 const nextTodo = document.getElementById('input');
 const timeStamp = document.getElementById('date');
@@ -5,28 +20,37 @@ const description = document.getElementById('task-desc');
 const status = document.getElementById('task-column');
 const priority = document.getElementById('task-priority');
 
-const todos = [];
-const RENDER_EVENT = 'render-todo';
+// -----------------------------------------------------------------------------
+// App State
+// -----------------------------------------------------------------------------
+const todos = []; // In-memory array of all task objects
+const RENDER_EVENT = 'render-todo'; // Custom event name to trigger UI re-render
 
+// -----------------------------------------------------------------------------
+// Initialization — runs after the DOM is fully loaded
+// -----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   loadDataFromStorage();
 
-  // createModal();
-  // createTaskModal();
-
   submitForm.addEventListener('submit', function (e) {
     e.preventDefault();
-
     addTask();
   });
 });
 
-// ADD TASK
+// =============================================================================
+// TASK CRUD
+// =============================================================================
+
+/**
+ * Reads values from the Add Task form, validates them,
+ * creates a new task object, saves it, and triggers a re-render.
+ */
 function addTask() {
   const generateID = generateId();
 
   if (!nextTodo.value.trim() || !timeStamp.value) {
-    alert('Task dan tanggal wajib diisi!');
+    alert('Task name and date are required!');
     return;
   }
 
@@ -43,14 +67,28 @@ function addTask() {
   submitForm.reset();
 
   saveData();
-
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
+/**
+ * Generates a unique numeric ID based on the current timestamp.
+ * @returns {number} Unique ID
+ */
 function generateId() {
   return +new Date();
 }
 
+/**
+ * Creates a plain task object with the given properties.
+ *
+ * @param {number} id         - Unique task ID
+ * @param {string} task       - Task title
+ * @param {string} description - Optional task description
+ * @param {string} timestamp  - Due date (YYYY-MM-DD)
+ * @param {string} status     - Column status: 'todo' | 'progress' | 'completed'
+ * @param {string} priority   - Priority level: 'high' | 'medium' | 'low'
+ * @returns {Object} Task object
+ */
 function generateTodoObject(
   id,
   task,
@@ -59,133 +97,131 @@ function generateTodoObject(
   status,
   priority,
 ) {
-  return {
-    id,
-    task,
-    description,
-    timestamp,
-    status,
-    priority,
-  };
+  return { id, task, description, timestamp, status, priority };
 }
 
+// Listen for the render event and update the board
 document.addEventListener(RENDER_EVENT, function () {
   console.log(todos);
-
   renderTask();
 });
 
-// MAKE OBJECT
-// Object Todo
+// =============================================================================
+// CARD RENDERING
+// =============================================================================
 
+// Kanban column containers
 const todoContainer = document.getElementById('todo-list');
 const progressContainer = document.getElementById('progress-list');
 const completedContainer = document.getElementById('completed-list');
 
+/**
+ * Builds and returns a task card DOM element.
+ * Action buttons and status indicator vary depending on the task's column.
+ *
+ * @param {Object} task - Task object
+ * @returns {HTMLElement} Card element
+ */
 function createCard(task) {
   const card = document.createElement('div');
   card.classList.add('tf-card');
 
   let actionButtons = '';
 
-  // Entered Todo
+  // --- Action buttons per column ---
+
+  // "To Do" column: move forward (→ In Progress) + delete
   if (task.status === 'todo') {
     actionButtons = `
     <div class="tf-card-actions">
       <button class="tf-action-btn complete-btn" data-id="${task.id}">
         <i class="ti ti-check" aria-hidden="true"></i>
       </button>
-
-      <button class="tf-action-btn delete-btn" data-id = "${task.id}">
-          <i class="ti ti-trash" aria-hidden="true"></i> 
-      </button>      
-    </div>
-    `;
+      <button class="tf-action-btn delete-btn" data-id="${task.id}">
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      </button>
+    </div>`;
   }
 
-  // Entered Inprogress
+  // "In Progress" column: move back (← To Do) + move forward (→ Completed)
   else if (task.status === 'progress') {
     actionButtons = `
     <div class="tf-card-actions">
-      <button class="tf-action-btn back-btn" data-id = "${task.id}">
-          <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
+      <button class="tf-action-btn back-btn" data-id="${task.id}">
+        <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
       </button>
-
-      <button class="tf-action-btn complete-btn" data-id = "${task.id}">
-          <i class="ti ti-check" aria-hidden="true"></i> 
-      </button>      
-    </div>
-    `;
+      <button class="tf-action-btn complete-btn" data-id="${task.id}">
+        <i class="ti ti-check" aria-hidden="true"></i>
+      </button>
+    </div>`;
   }
 
-  // Entered Complete
+  // "Completed" column: move back (← In Progress) + delete
   else if (task.status === 'completed') {
     actionButtons = `
     <div class="tf-card-actions">
-      <button class="tf-action-btn back-btn" data-id = "${task.id}">
-          <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
+      <button class="tf-action-btn back-btn" data-id="${task.id}">
+        <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
       </button>
-
-      <button class="tf-action-btn delete-btn" data-id = "${task.id}">
-          <i class="ti ti-trash" aria-hidden="true"></i> 
-      </button>      
-    </div>
-    `;
+      <button class="tf-action-btn delete-btn" data-id="${task.id}">
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      </button>
+    </div>`;
   }
+
+  // --- Status indicator icon ---
 
   let checkMarkup = '';
 
-  // check: todo
   if (task.status === 'todo') {
     checkMarkup = `<div class="tf-card-check"></div>`;
-  }
-  // check: progress
-  else if (task.status === 'progress') {
+  } else if (task.status === 'progress') {
     checkMarkup = `
     <div class="tf-card-check-progress">
       <i class="ti ti-loader-2"></i>
     </div>`;
-  }
-  // check: completed
-  else if (task.status === 'completed') {
+  } else if (task.status === 'completed') {
     checkMarkup = `
     <div class="tf-card-check done">
-    <i class="ti ti-check">
-    </i>
-    </div>
-    `;
+      <i class="ti ti-check"></i>
+    </div>`;
   }
 
+  // Apply strikethrough style to completed task titles
   const titleClass =
     task.status === 'completed' ? 'tf-card-title done' : 'tf-card-title';
 
   card.dataset.id = task.id;
-  card.innerHTML = `    
+  card.innerHTML = `
   <div class="tf-card-header">
-      ${checkMarkup}
-      <div class="${titleClass}">${task.task}</div>
-      ${actionButtons}
+    ${checkMarkup}
+    <div class="${titleClass}">${task.task}</div>
+    ${actionButtons}
   </div>
 
   <div class="tf-card-body-click" data-id="${task.id}">
-  <div class="tf-card-desc">${task.description || ''}</div>
-  
+    <div class="tf-card-desc">${task.description || ''}</div>
     <div class="tf-card-footer">
       <span class="tf-badge ${task.priority}">${task.priority}</span>
-      <span class="tf-date"><i class="ti ti-calendar" aria-hidden="true"></i>
-      ${task.timestamp}
+      <span class="tf-date">
+        <i class="ti ti-calendar" aria-hidden="true"></i>
+        ${task.timestamp}
       </span>
     </div>
-  </div>
-  `;
+  </div>`;
 
   return card;
 }
 
+// Column task count elements
 const todoCount = document.getElementById('todo-count');
 const progressCount = document.getElementById('progress-count');
 const completedCount = document.getElementById('completed-count');
 
+/**
+ * Clears all Kanban columns and re-renders cards from the `todos` array.
+ * Also updates the task count badges on each column header.
+ */
 function renderTask() {
   todoContainer.innerHTML = '';
   progressContainer.innerHTML = '';
@@ -195,7 +231,6 @@ function renderTask() {
   let progressTotal = 0;
   let completedTotal = 0;
 
-  // Cara 1: Use append
   todos.forEach((task) => {
     const cardColumn = createCard(task);
 
@@ -215,50 +250,55 @@ function renderTask() {
   progressCount.textContent = progressTotal;
   completedCount.textContent = completedTotal;
 
-  // Cara 2: use raw innerHTML
-  /*todos.forEach((task) => {
+  // Alternative approach using raw innerHTML (kept for reference):
+  /*
+  todos.forEach((task) => {
     const card = createCard(task);
-
-    if (task.status == 'todo') {
-      todoContainer.innerHTML += card;
-    } else if (task.status == 'progress') {
-      progressContainer.innerHTML += card;
-    } else if (task.status == 'completed') {
-      completedContainer.innerHTML += card;
-    }
-  });*/
+    if (task.status === 'todo')           todoContainer.innerHTML      += card;
+    else if (task.status === 'progress')  progressContainer.innerHTML  += card;
+    else if (task.status === 'completed') completedContainer.innerHTML += card;
+  });
+  */
 }
 
-// addEventListener_Move
+// =============================================================================
+// EVENT DELEGATION — Card Actions & Navigation
+// =============================================================================
+
+/**
+ * Single delegated click handler for all interactive card elements:
+ *   - Complete button   → moves task forward
+ *   - Back button       → moves task backward
+ *   - Delete button     → removes task
+ *   - Card body         → opens edit modal
+ *   - "+ Add Task" link → opens add modal for the clicked column
+ */
 document.addEventListener('click', function (e) {
-  // Button Todo
+  // Move task to the next column
   if (e.target.closest('.complete-btn')) {
     const id = Number(e.target.closest('.complete-btn').dataset.id);
-
     moveTaskForward(id);
   }
 
-  // Button Back
+  // Move task to the previous column
   else if (e.target.closest('.back-btn')) {
     const id = Number(e.target.closest('.back-btn').dataset.id);
-
     moveTaskBack(id);
   }
 
-  // Button Delete
+  // Delete the task
   else if (e.target.closest('.delete-btn')) {
     const id = Number(e.target.closest('.delete-btn').dataset.id);
-
     deleteTask(id);
   }
 
-  // Click card body -> open edit modal
+  // Open edit modal when clicking the card body
   else if (e.target.closest('.tf-card-body-click')) {
     const id = Number(e.target.closest('.tf-card-body-click').dataset.id);
     openTaskModal('edit', id);
   }
 
-  // Click '+ Add Task' link inn columns -> open add modal for that column
+  // Open add modal pre-set to the clicked column
   else if (e.target.closest('.tf-add-link')) {
     const col = e.target.closest('.tf-col');
     const colStatus = col.id.replace('-container', '');
@@ -266,43 +306,51 @@ document.addEventListener('click', function (e) {
   }
 });
 
-// move task to diferent column
-// Action 1: Move
+// =============================================================================
+// TASK MOVEMENT
+// =============================================================================
+
+/**
+ * Moves a task one step forward in the workflow:
+ *   To Do → In Progress → Completed
+ *
+ * @param {number} id - Task ID
+ */
 function moveTaskForward(id) {
   const task = todos.find((t) => t.id === id);
-
   if (!task) return;
 
-  if (task.status === 'todo') {
-    task.status = 'progress';
-  } else if (task.status === 'progress') {
-    task.status = 'completed';
-  }
+  if (task.status === 'todo') task.status = 'progress';
+  else if (task.status === 'progress') task.status = 'completed';
 
   saveData();
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-// Action 2: Move back
+/**
+ * Moves a task one step backward in the workflow:
+ *   Completed → In Progress → To Do
+ *
+ * @param {number} id - Task ID
+ */
 function moveTaskBack(id) {
   const task = todos.find((t) => t.id === id);
-
   if (!task) return;
 
-  if (task.status === 'completed') {
-    task.status = 'progress';
-  } else if (task.status === 'progress') {
-    task.status = 'todo';
-  }
+  if (task.status === 'completed') task.status = 'progress';
+  else if (task.status === 'progress') task.status = 'todo';
 
   saveData();
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-// Action 3: Delete
+/**
+ * Removes a task from the `todos` array by its ID.
+ *
+ * @param {number} id - Task ID
+ */
 function deleteTask(id) {
   const taskIndex = todos.findIndex((t) => t.id === id);
-
   if (taskIndex === -1) return;
 
   todos.splice(taskIndex, 1);
@@ -311,19 +359,29 @@ function deleteTask(id) {
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-const STORAGE_KEY = 'TASKFLOW_APPS';
-const SAVED_EVENT = 'saved_task';
+// =============================================================================
+// PERSISTENCE — localStorage
+// =============================================================================
 
+const STORAGE_KEY = 'TASKFLOW_APPS'; // Key used for task data in localStorage
+const SAVED_EVENT = 'saved_task'; // Custom event dispatched after saving
+
+/**
+ * Serializes the `todos` array to JSON and writes it to localStorage.
+ * Dispatches a `saved_task` event after saving.
+ */
 function saveData() {
   const parsed = JSON.stringify(todos);
   localStorage.setItem(STORAGE_KEY, parsed);
-
   document.dispatchEvent(new Event(SAVED_EVENT));
 }
 
+/**
+ * Reads and deserializes task data from localStorage.
+ * Populates the `todos` array and triggers an initial render.
+ */
 function loadDataFromStorage() {
   const serializedData = localStorage.getItem(STORAGE_KEY);
-
   if (!serializedData) return;
 
   const data = JSON.parse(serializedData);
@@ -335,13 +393,28 @@ function loadDataFromStorage() {
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-// Dynamic Analytics
+// =============================================================================
+// ANALYTICS — Stats Calculation & Sparklines
+// =============================================================================
+
+/**
+ * Computes key productivity metrics from the current `todos` array.
+ *
+ * @returns {{
+ *   total: number,
+ *   completed: number,
+ *   inProgress: number,
+ *   todo: number,
+ *   productivity: number,  // percentage of completed tasks
+ *   todayProgress: number  // weighted progress: completed (100%) + in-progress (50%)
+ * }}
+ */
 function calcAnalytics() {
   const completed = todos.filter((t) => t.status === 'completed').length;
   const inProgress = todos.filter((t) => t.status === 'progress').length;
   const todo = todos.filter((t) => t.status === 'todo').length;
-
   const total = todos.length;
+
   const productivity = total === 0 ? 0 : Math.round((completed / total) * 100);
   const todayProgress =
     total === 0
@@ -351,20 +424,25 @@ function calcAnalytics() {
   return { total, completed, inProgress, todo, productivity, todayProgress };
 }
 
+/**
+ * Updates the four stat cards in the header (Total, Completed, Productivity, Progress).
+ * Also updates the motivational sub-label and the progress bar fill width,
+ * then triggers a sparkline refresh.
+ */
 function updateStats() {
   const { total, completed, productivity, todayProgress } = calcAnalytics();
 
-  // update value
-  document.querySelector(`.tf-stat:nth-child(1) .tf-stat-value`).textContent =
+  // Update numeric values
+  document.querySelector('.tf-stat:nth-child(1) .tf-stat-value').textContent =
     total;
-  document.querySelector(`.tf-stat:nth-child(2) .tf-stat-value`).textContent =
+  document.querySelector('.tf-stat:nth-child(2) .tf-stat-value').textContent =
     completed;
-  document.querySelector(`.tf-stat:nth-child(3) .tf-stat-value`).textContent =
+  document.querySelector('.tf-stat:nth-child(3) .tf-stat-value').textContent =
     productivity + '%';
-  document.querySelector(`.tf-stat:nth-child(4) .tf-stat-value`).textContent =
+  document.querySelector('.tf-stat:nth-child(4) .tf-stat-value').textContent =
     todayProgress + '%';
 
-  // update sub labels
+  // Productivity label
   const prodLabel =
     productivity >= 80
       ? 'Excellent 🔥'
@@ -377,10 +455,11 @@ function updateStats() {
   document.querySelector('.tf-stat:nth-child(3) .tf-stat-sub').textContent =
     prodLabel;
 
+  // Progress motivational text
   const progressSub = document.querySelector('.tf-stat:nth-child(4)');
   const motivText = progressSub.querySelector('.tf-progress-motivtext');
 
-  if (motivText)
+  if (motivText) {
     motivText.textContent =
       todayProgress >= 80
         ? 'Almost there! 🎯'
@@ -389,17 +468,28 @@ function updateStats() {
           : todayProgress > 0
             ? "Let's get started! 🚀"
             : 'Add tasks to begin.';
+  }
 
-  // update progress bar
+  // Progress bar fill
   document.querySelector('.tf-progress-fill').style.width = todayProgress + '%';
 
-  // update sparklines
+  // Refresh sparkline mini-charts
   updateSparklines();
 }
 
-const SPARK_HISTORY_KEY = 'TASKFLOW_SPARK_HISTORY';
-const SPARK_MAX_POINTS = 8;
+// -----------------------------------------------------------------------------
+// Sparkline History
+// -----------------------------------------------------------------------------
 
+const SPARK_HISTORY_KEY = 'TASKFLOW_SPARK_HISTORY'; // localStorage key for sparkline data
+const SPARK_MAX_POINTS = 8; // Maximum data points kept per sparkline
+
+/**
+ * Loads the sparkline history object from localStorage.
+ * Returns a default empty structure if nothing is stored or parsing fails.
+ *
+ * @returns {{ total: number[], completed: number[], productivity: number[] }}
+ */
 function loadSparkHistory() {
   try {
     return (
@@ -414,15 +504,27 @@ function loadSparkHistory() {
   }
 }
 
+/**
+ * Persists the sparkline history object to localStorage.
+ *
+ * @param {{ total: number[], completed: number[], productivity: number[] }} history
+ */
 function saveSparkHistory(history) {
   localStorage.setItem(SPARK_HISTORY_KEY, JSON.stringify(history));
 }
 
+/**
+ * Appends the current analytics snapshot to each sparkline history array.
+ * Duplicate consecutive values are not recorded.
+ * Each array is capped at `SPARK_MAX_POINTS` entries.
+ *
+ * @returns {{ total: number[], completed: number[], productivity: number[] }}
+ */
 function recordSparkSnapshot() {
   const { total, completed, productivity } = calcAnalytics();
   const history = loadSparkHistory();
 
-  // Only record if value changed from last snapshot
+  // Append only if the value changed from the last recorded entry
   const push = (arr, val) => {
     if (arr.length === 0 || arr[arr.length - 1] !== val) {
       arr.push(val);
@@ -438,6 +540,15 @@ function recordSparkSnapshot() {
   return history;
 }
 
+/**
+ * Calculates SVG polyline point strings from a data array.
+ * Values are normalized to fit within the provided Y-axis bounds.
+ *
+ * @param {number[]} arr  - Data values
+ * @param {number}   minY - Minimum Y coordinate (bottom of chart)
+ * @param {number}   maxY - Maximum Y coordinate (top of chart)
+ * @returns {string} Space-separated "x,y" point pairs for an SVG <polyline>
+ */
 function updateSparklines() {
   const history = recordSparkSnapshot();
 
@@ -447,6 +558,7 @@ function updateSparklines() {
 
     const data = arr.length === 1 ? [arr[0], arr[0]] : arr;
     const max = Math.max(...data, 1);
+
     return data
       .map((val, i) => {
         const x = (i / (arr.length - 1)) * 100;
@@ -460,24 +572,29 @@ function updateSparklines() {
   document
     .querySelector('.tf-stat:nth-child(1) .tf-sparkline polyline')
     .setAttribute('points', buildPoints(history.total, 5, 22));
-
   document
     .querySelector('.tf-stat:nth-child(2) .tf-sparkline polyline')
     .setAttribute('points', buildPoints(history.completed, 6, 22));
-
   document
     .querySelector('.tf-stat:nth-child(3) .tf-sparkline polyline')
     .setAttribute('points', buildPoints(history.productivity, 8, 20));
 }
 
-// listen to render event to update stats
+// Re-render stats whenever the board is updated
 document.addEventListener(RENDER_EVENT, updateStats);
 
-// Analytics Modal
+// =============================================================================
+// ANALYTICS MODAL
+// =============================================================================
+
+/**
+ * Creates the analytics modal element and appends it to the document body.
+ * Sets up event listeners to close the modal via backdrop or close button.
+ */
 function createModal() {
   const modal = document.createElement('div');
-
   modal.id = 'analytics-modal';
+
   modal.innerHTML = `
   <div class="modal-backdrop"></div>
   <div class="modal-panel">
@@ -486,27 +603,31 @@ function createModal() {
         <span class="modal-icon"></span>
         <h3 class="modal-title">Analytics Overview</h3>
       </div>
-      
       <button class="modal-close" id="modal-close-btn"><i class="ti ti-x"></i></button>
     </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>`;
 
-    <div class="modal-body" id="modal-body" ></div>
-  </div>
-  `;
   document.body.appendChild(modal);
 
   modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
   modal.querySelector('#modal-close-btn').addEventListener('click', closeModal);
 }
 
+/** Closes the analytics modal by removing the 'open' CSS class. */
 function closeModal() {
-  const modal = document.getElementById('analytics-modal');
-  modal.classList.remove('open');
+  document.getElementById('analytics-modal').classList.remove('open');
 }
 
+/**
+ * Populates and opens the analytics modal with data for the given stat type.
+ *
+ * @param {'total' | 'completed' | 'productivity' | 'progress'} type
+ */
 function openModal(type) {
   const { total, completed, inProgress, todo, productivity, todayProgress } =
     calcAnalytics();
+
   const modal = document.getElementById('analytics-modal');
   const body = document.getElementById('modal-body');
   const icon = modal.querySelector('.modal-icon');
@@ -515,9 +636,9 @@ function openModal(type) {
   const highCount = todos.filter((t) => t.priority === 'high').length;
   const medCount = todos.filter((t) => t.priority === 'medium').length;
   const lowCount = todos.filter((t) => t.priority === 'low').length;
-
   const recentTasks = [...todos].reverse().slice(0, 5);
 
+  // Config map: icon, title, and HTML content for each modal type
   const configs = {
     total: {
       icon: '📋',
@@ -532,13 +653,11 @@ function openModal(type) {
           <span>To Do</span>
           <strong>${todo}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#a78bfa"></span>
           <span>In Progress</span>
           <strong>${inProgress}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#22c55e"></span>
           <span>Completed</span>
@@ -549,127 +668,77 @@ function openModal(type) {
       <div class="modal-section-title">Priority Distribution</div>
 
       <div class="modal-bar-group">
-
         <div class="modal-bar-row">
           <span>High</span>
-
           <div class="modal-bar">
-            <div 
-              class="modal-bar-fill"
+            <div class="modal-bar-fill"
               style="width:${total ? Math.round((highCount / total) * 100) : 0}%; background:#f87171">
             </div>
           </div>
-
           <span>${highCount}</span>
         </div>
-
         <div class="modal-bar-row">
           <span>Medium</span>
-
           <div class="modal-bar">
-            <div 
-              class="modal-bar-fill"
+            <div class="modal-bar-fill"
               style="width:${total ? Math.round((medCount / total) * 100) : 0}%; background:#fbbf24">
             </div>
           </div>
-
           <span>${medCount}</span>
         </div>
-
         <div class="modal-bar-row">
           <span>Low</span>
-
           <div class="modal-bar">
-            <div 
-              class="modal-bar-fill"
+            <div class="modal-bar-fill"
               style="width:${total ? Math.round((lowCount / total) * 100) : 0}%; background:#818cf8">
             </div>
           </div>
-
           <span>${lowCount}</span>
         </div>
-
       </div>
 
       <div class="modal-section-title">Recent Tasks</div>
-
       <div class="modal-task-list">
         ${
           recentTasks.length
             ? recentTasks
                 .map(
                   (t) => `
-              <div class="modal-task-item">
-                <span class="modal-task-status ${t.status}"></span>
-                <span class="modal-task-name">${t.task}</span>
-                <span class="tf-badge ${t.priority}">
-                  ${t.priority}
-                </span>
-              </div>
-            `,
+            <div class="modal-task-item">
+              <span class="modal-task-status ${t.status}"></span>
+              <span class="modal-task-name">${t.task}</span>
+              <span class="tf-badge ${t.priority}">${t.priority}</span>
+            </div>`,
                 )
                 .join('')
             : '<p style="color:var(--text-muted);font-size:12px">No tasks yet.</p>'
         }
-      </div>
-    `,
+      </div>`,
     },
 
     completed: {
       icon: '✅',
       title: 'Completed Tasks',
-
       html: `
-      <div class="modal-big-number" style="color:#22c55e">
-        ${completed}
-      </div>
-
-      <p class="modal-desc">
-        ${completed} of ${total} tasks completed
-      </p>
+      <div class="modal-big-number" style="color:#22c55e">${completed}</div>
+      <p class="modal-desc">${completed} of ${total} tasks completed</p>
 
       <div class="modal-progress-ring-wrap">
         <svg viewBox="0 0 120 120" class="modal-ring-svg">
-
-          <circle
-            cx="60"
-            cy="60"
-            r="50"
-            fill="none"
-            stroke="rgba(255,255,255,0.05)"
-            stroke-width="10"
-          />
-
-          <circle
-            cx="60"
-            cy="60"
-            r="50"
-            fill="none"
-            stroke="#22c55e"
-            stroke-width="10"
-            stroke-dasharray="${
-              total ? ((completed / total) * 314).toFixed(1) : 0
-            } 314"
-            stroke-linecap="round"
-            transform="rotate(-90 60 60)"
-          />
-
-          <text
-            x="60"
-            y="65"
-            text-anchor="middle"
-            fill="#22c55e"
-            font-size="20"
-            font-weight="700"
-          >
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="#22c55e" stroke-width="10"
+            stroke-dasharray="${total ? ((completed / total) * 314).toFixed(1) : 0} 314"
+            stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          <text x="60" y="65" text-anchor="middle"
+            fill="#22c55e" font-size="20" font-weight="700">
             ${total ? Math.round((completed / total) * 100) : 0}%
           </text>
-
         </svg>
       </div>
 
       <div class="modal-section-title">Completed Tasks</div>
-
       <div class="modal-task-list">
         ${
           todos.filter((t) => t.status === 'completed').length
@@ -677,38 +746,26 @@ function openModal(type) {
                 .filter((t) => t.status === 'completed')
                 .map(
                   (t) => `
-              <div class="modal-task-item">
-                <span class="modal-task-status completed"></span>
-
-                <span 
-                  class="modal-task-name"
-                  style="text-decoration:line-through;opacity:0.6"
-                >
-                  ${t.task}
-                </span>
-
-                <span class="tf-badge ${t.priority}">
-                  ${t.priority}
-                </span>
-              </div>
-            `,
+            <div class="modal-task-item">
+              <span class="modal-task-status completed"></span>
+              <span class="modal-task-name"
+                style="text-decoration:line-through;opacity:0.6">
+                ${t.task}
+              </span>
+              <span class="tf-badge ${t.priority}">${t.priority}</span>
+            </div>`,
                 )
                 .join('')
             : '<p style="color:var(--text-muted);font-size:12px">No completed tasks yet.</p>'
         }
-      </div>
-    `,
+      </div>`,
     },
 
     productivity: {
       icon: '📈',
       title: 'Productivity Score',
-
       html: `
-      <div class="modal-big-number" style="color:#a78bfa">
-        ${productivity}%
-      </div>
-
+      <div class="modal-big-number" style="color:#a78bfa">${productivity}%</div>
       <p class="modal-desc">
         ${
           productivity >= 80
@@ -723,120 +780,68 @@ function openModal(type) {
 
       <div class="modal-progress-ring-wrap">
         <svg viewBox="0 0 120 120" class="modal-ring-svg">
-
-          <circle
-            cx="60"
-            cy="60"
-            r="50"
-            fill="none"
-            stroke="rgba(255,255,255,0.05)"
-            stroke-width="10"
-          />
-
-          <circle
-            cx="60"
-            cy="60"
-            r="50"
-            fill="none"
-            stroke="#a78bfa"
-            stroke-width="10"
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none"
+            stroke="#a78bfa" stroke-width="10"
             stroke-dasharray="${((productivity / 100) * 314).toFixed(1)} 314"
-            stroke-linecap="round"
-            transform="rotate(-90 60 60)"
-          />
-
-          <text
-            x="60"
-            y="65"
-            text-anchor="middle"
-            fill="#a78bfa"
-            font-size="20"
-            font-weight="700"
-          >
+            stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          <text x="60" y="65" text-anchor="middle"
+            fill="#a78bfa" font-size="20" font-weight="700">
             ${productivity}%
           </text>
-
         </svg>
       </div>
 
       <div class="modal-breakdown">
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#22c55e"></span>
-          <span>Completed</span>
-          <strong>${completed}</strong>
+          <span>Completed</span><strong>${completed}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#a78bfa"></span>
-          <span>In Progress</span>
-          <strong>${inProgress}</strong>
+          <span>In Progress</span><strong>${inProgress}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#94a3b8"></span>
-          <span>Pending</span>
-          <strong>${todo}</strong>
+          <span>Pending</span><strong>${todo}</strong>
         </div>
-
       </div>
 
       <div class="modal-section-title">Tip</div>
-
       <div class="modal-tip">
-        💡 Complete your 
-        <strong>high priority</strong> tasks first 
+        💡 Complete your <strong>high priority</strong> tasks first
         to boost your score faster!
-      </div>
-    `,
+      </div>`,
     },
 
     progress: {
       icon: '🎯',
       title: "Today's Progress",
-
       html: `
-      <div class="modal-big-number" style="color:#6c63ff">
-        ${todayProgress}%
-      </div>
-
-      <p class="modal-desc">
-        Based on completed + in-progress tasks
-      </p>
+      <div class="modal-big-number" style="color:#6c63ff">${todayProgress}%</div>
+      <p class="modal-desc">Based on completed + in-progress tasks</p>
 
       <div class="modal-big-bar">
-        <div 
-          class="modal-big-bar-fill"
-          style="width:${todayProgress}%"
-        ></div>
+        <div class="modal-big-bar-fill" style="width:${todayProgress}%"></div>
       </div>
 
       <div class="modal-breakdown">
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#22c55e"></span>
-          <span>Done (100%)</span>
-          <strong>${completed}</strong>
+          <span>Done (100%)</span><strong>${completed}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#a78bfa"></span>
-          <span>In Progress (50%)</span>
-          <strong>${inProgress}</strong>
+          <span>In Progress (50%)</span><strong>${inProgress}</strong>
         </div>
-
         <div class="modal-breakdown-item">
           <span class="modal-dot" style="background:#94a3b8"></span>
-          <span>To Do (0%)</span>
-          <strong>${todo}</strong>
+          <span>To Do (0%)</span><strong>${todo}</strong>
         </div>
-
       </div>
 
-      <div class="modal-section-title">
-        In Progress Tasks
-      </div>
-
+      <div class="modal-section-title">In Progress Tasks</div>
       <div class="modal-task-list">
         ${
           todos.filter((t) => t.status === 'progress').length
@@ -844,26 +849,16 @@ function openModal(type) {
                 .filter((t) => t.status === 'progress')
                 .map(
                   (t) => `
-              <div class="modal-task-item">
-
-                <span class="modal-task-status progress"></span>
-
-                <span class="modal-task-name">
-                  ${t.task}
-                </span>
-
-                <span class="tf-badge ${t.priority}">
-                  ${t.priority}
-                </span>
-
-              </div>
-            `,
+            <div class="modal-task-item">
+              <span class="modal-task-status progress"></span>
+              <span class="modal-task-name">${t.task}</span>
+              <span class="tf-badge ${t.priority}">${t.priority}</span>
+            </div>`,
                 )
                 .join('')
             : '<p style="color:var(--text-muted);font-size:12px">No tasks in progress.</p>'
         }
-      </div>
-    `,
+      </div>`,
     },
   };
 
@@ -873,7 +868,8 @@ function openModal(type) {
   body.innerHTML = cfg.html;
 
   modal.classList.add('open');
-  // Animate bars
+
+  // Animate progress bar fills on open
   setTimeout(() => {
     modal
       .querySelectorAll('.modal-bar-fill, .modal-big-bar-fill')
@@ -888,16 +884,19 @@ function openModal(type) {
   }, 50);
 }
 
-// Init modal and stat click handlers
+// Initialize analytics modal and attach click handlers to stat cards
 document.addEventListener('DOMContentLoaded', function () {
   createModal();
 
   const statTypes = ['total', 'completed', 'productivity', 'progress'];
+
   document.querySelectorAll('.tf-stat').forEach((el, i) => {
     el.style.cursor = 'pointer';
     el.title = 'Click for details';
+
     el.addEventListener('click', () => openModal(statTypes[i]));
-    // hover hint
+
+    // Highlight border on hover
     el.addEventListener(
       'mouseenter',
       () => (el.style.borderColor = 'rgba(108, 99, 255, 0.5)'),
@@ -906,16 +905,23 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Task Modal (Edit & Add)
-let taskModalMode = 'add';
-let taskModalEditId = null;
+// =============================================================================
+// TASK MODAL — Add & Edit
+// =============================================================================
 
-// shorcut mendapatkan dom
+let taskModalMode = 'add'; // Current modal mode: 'add' | 'edit'
+let taskModalEditId = null; // ID of the task being edited (null when adding)
+
+// Convenience DOM helpers
 const $ = (id) => document.getElementById(id);
 const qs = (parent, selector) => parent.querySelector(selector);
 
 const TASK_MODAL_ID = 'task-modal';
 
+/**
+ * Returns references to all interactive elements inside the task modal.
+ * @returns {Object} Object containing modal DOM elements
+ */
 function getTaskModalEls() {
   const modal = $(TASK_MODAL_ID);
 
@@ -925,7 +931,6 @@ function getTaskModalEls() {
     icon: qs(modal, '.tm-mode-icon'),
     title: qs(modal, '.tm-title'),
     task: $('tm-task'),
-
     date: $('tm-date'),
     desc: $('tm-desc'),
     priority: $('tm-priority'),
@@ -937,18 +942,27 @@ function getTaskModalEls() {
   };
 }
 
+/**
+ * Highlights the column picker button matching the given status.
+ * @param {'todo' | 'progress' | 'completed'} status
+ */
 function setActiveColumn(status = 'todo') {
   const { colPicker } = getTaskModalEls();
-
   colPicker.querySelectorAll('.tm-col-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.val === status);
   });
 }
+
+/**
+ * Returns the currently selected column value from the column picker.
+ * @returns {'todo' | 'progress' | 'completed'}
+ */
 function getActiveColumn() {
   const activeBtn = qs(document, '#tm-col-picker .tm-col-btn.active');
   return activeBtn ? activeBtn.dataset.val : 'todo';
 }
 
+/** Clears all input fields in the task modal back to their default values. */
 function resetTaskModalFields() {
   const { task, desc, date, priority } = getTaskModalEls();
   task.value = '';
@@ -957,9 +971,12 @@ function resetTaskModalFields() {
   priority.value = 'high';
 }
 
+/**
+ * Pre-fills the task modal fields with an existing task's data.
+ * @param {Object} task - Task object to populate from
+ */
 function fillTaskModal(task) {
   const { task: taskInput, desc, date, priority } = getTaskModalEls();
-
   taskInput.value = task.task || '';
   desc.value = task.description || '';
   date.value = task.timestamp || '';
@@ -967,6 +984,10 @@ function fillTaskModal(task) {
   setActiveColumn(task.status || 'todo');
 }
 
+/**
+ * Updates the modal header (icon, title, save button label) based on mode.
+ * @param {'add' | 'edit'} mode
+ */
 function setModalHeader(mode) {
   const { icon, title, saveLabel } = getTaskModalEls();
 
@@ -981,21 +1002,24 @@ function setModalHeader(mode) {
   }
 }
 
+/**
+ * Briefly applies an error highlight animation to an input field.
+ * @param {HTMLElement} inputEl - The input to highlight
+ */
 function showInputError(inputEl) {
   inputEl.classList.add('tm-error');
   inputEl.focus();
-
-  setTimeout(() => {
-    inputEl.classList.remove('tm-error');
-  }, 1500);
+  setTimeout(() => inputEl.classList.remove('tm-error'), 1500);
 }
 
+// Helper: wraps a label and content string in a .tm-field container
 const tmField = (label, content) => `
   <div class="tm-field">
-  <label class="tm-label">${label}</label>
-  ${content}
-  </div>
-`;
+    <label class="tm-label">${label}</label>
+    ${content}
+  </div>`;
+
+// Column picker button definitions
 const colButtons = [
   { val: 'todo', text: '📑 To Do' },
   { val: 'progress', text: '⚡ In Progress' },
@@ -1006,6 +1030,11 @@ const colButtons = [
   )
   .join('');
 
+/**
+ * Creates the task modal element and appends it to the document body.
+ * Sets up all internal event listeners (close, save, column picker).
+ * Safe to call multiple times — skips creation if modal already exists.
+ */
 function createTaskModal() {
   if ($(TASK_MODAL_ID)) return;
 
@@ -1020,15 +1049,24 @@ function createTaskModal() {
           <span class="tm-mode-icon"></span>
           <h3 class="tm-title"></h3>
         </div>
-      <button class="tm-close" id="tm-close-btn"><i class="ti ti-x"></i></button>
+        <button class="tm-close" id="tm-close-btn"><i class="ti ti-x"></i></button>
       </div>
 
       <div class="tm-body">
-        ${tmField('Task <span class="tm-required" >*</span>', '<input id="tm-task" class="tm-input" placeholder="What do you want to accomplish?" />')}
-        ${tmField('Description', '<textarea id="tm-desc" class="tm-input tm-textarea" placeholder="Add a description..."></textarea>')}
-      
+        ${tmField(
+          'Task <span class="tm-required">*</span>',
+          '<input id="tm-task" class="tm-input" placeholder="What do you want to accomplish?" />',
+        )}
+        ${tmField(
+          'Description',
+          '<textarea id="tm-desc" class="tm-input tm-textarea" placeholder="Add a description..."></textarea>',
+        )}
+
         <div class="tm-row">
-          ${tmField('Date <span class="tm-required">*</span>', `<input id="tm-date" class="tm-input" type="date">`)}
+          ${tmField(
+            'Date <span class="tm-required">*</span>',
+            `<input id="tm-date" class="tm-input" type="date">`,
+          )}
           ${tmField(
             'Priority',
             `
@@ -1036,8 +1074,7 @@ function createTaskModal() {
               <option value="high">🔴 High</option>
               <option value="medium">🟡 Medium</option>
               <option value="low">🔵 Low</option>
-            </select>
-            `,
+            </select>`,
           )}
         </div>
 
@@ -1045,29 +1082,40 @@ function createTaskModal() {
       </div>
 
       <div class="tm-footer">
-          <button class="tm-btn-cancel" id="tm-cancel-btn">Cancel</button>
-          <button class="tm-btn-save" id="tm-save-btn">
-            <i class="ti ti-check"></i>
-            <span id="tm-save-label">Save Changes</span>
-          </button>
+        <button class="tm-btn-cancel" id="tm-cancel-btn">Cancel</button>
+        <button class="tm-btn-save"   id="tm-save-btn">
+          <i class="ti ti-check"></i>
+          <span id="tm-save-label">Save Changes</span>
+        </button>
       </div>
-    </div>
-  `;
+    </div>`;
+
   document.body.appendChild(modal);
 
   const els = getTaskModalEls();
+
+  // Close triggers
   [els.backdrop, els.closeBtn, els.cancelBtn].forEach((el) => {
     el.addEventListener('click', closeTaskModal);
   });
 
+  // Save trigger
   els.saveBtn.addEventListener('click', saveTaskModal);
 
+  // Column picker toggle
   els.colPicker.addEventListener('click', (e) => {
     const btn = e.target.closest('.tm-col-btn');
     if (btn) setActiveColumn(btn.dataset.val);
   });
 }
 
+/**
+ * Opens the task modal in the specified mode.
+ *
+ * @param {'add' | 'edit'} mode              - Whether to add a new task or edit an existing one
+ * @param {number|null}    id                - Task ID to edit (ignored in 'add' mode)
+ * @param {'todo'|'progress'|'completed'} defaultStatus - Pre-selected column when adding
+ */
 function openTaskModal(mode, id = null, defaultStatus = 'todo') {
   createTaskModal();
 
@@ -1084,7 +1132,7 @@ function openTaskModal(mode, id = null, defaultStatus = 'todo') {
     if (task) {
       fillTaskModal(task);
     } else {
-      console.error('Task tidak ditemukan');
+      console.error('Task not found');
       return;
     }
   } else {
@@ -1092,19 +1140,24 @@ function openTaskModal(mode, id = null, defaultStatus = 'todo') {
   }
 
   els.modal.classList.add('open');
-
   requestAnimationFrame(() => els.task.focus());
 }
 
+/** Closes the task modal and clears its fields after the CSS transition. */
 function closeTaskModal() {
   const modal = $(TASK_MODAL_ID);
   if (!modal) return;
 
   modal.classList.remove('open');
-
   setTimeout(resetTaskModalFields, 300);
 }
 
+/**
+ * Reads and validates form data from the task modal.
+ * In 'edit' mode, updates the existing task in `todos`.
+ * In 'add' mode, creates and pushes a new task.
+ * Saves data and triggers a re-render on success.
+ */
 function saveTaskModal() {
   const els = getTaskModalEls();
 
@@ -1116,14 +1169,13 @@ function saveTaskModal() {
     status: getActiveColumn(),
   };
 
+  // Validation
   if (!formData.task) return showInputError(els.task);
   if (!formData.timestamp) return showInputError(els.date);
 
   if (taskModalMode === 'edit') {
     const index = todos.findIndex((t) => t.id === taskModalEditId);
-
     if (index === -1) return;
-
     todos[index] = { ...todos[index], ...formData };
   } else {
     const newTask = generateTodoObject(
@@ -1142,14 +1194,7 @@ function saveTaskModal() {
   closeTaskModal();
 }
 
-// Init task modal on Domcontentloaded
+// Create the task modal on page load
 document.addEventListener('DOMContentLoaded', function () {
   createTaskModal();
 });
-
-// document.querySelectorAll('.tf-add-link').forEach((link) => {
-//   link.addEventListener('click', () => {
-//     const col = link.closest('.tf-col')?.id.replace('-container', '') ?? 'todo';
-//     openTaskModal('add', null, col);
-//   });
-// });

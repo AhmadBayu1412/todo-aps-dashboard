@@ -1,17 +1,54 @@
+/* =============================================================================
+   TASKFLOW — Main Stylesheet
+   =============================================================================
+   Table of Contents:
+     1.  CSS Custom Properties (Design Tokens)
+     2.  Global Reset & Base Styles
+     3.  App Layout (.tf-app)
+     4.  Sidebar (.tf-sidebar)
+          4a. Logo
+          4b. Navigation
+          4c. Upgrade Banner
+          4d. User Profile
+     5.  Main Content (.tf-main)
+          5a. Topbar
+          5b. Content Wrapper
+     6.  Stats Cards (.tf-stats)
+     7.  Add Task Form (.tf-add-task)
+     8.  Kanban Board (.tf-kanban)
+          8a. Columns
+          8b. Column Header
+          8c. Task Cards
+          8d. Priority Badges
+          8e. Date Label
+          8f. Add Link
+          8g. Card Action Buttons
+     9.  Analytics Modal (#analytics-modal)
+     10. Task Modal — Add & Edit (#task-modal)
+     11. Animations & Keyframes
+   ============================================================================= */
+
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 
+
+/* =============================================================================
+   1. CSS Custom Properties (Design Tokens)
+   ============================================================================= */
 :root {
-    --bg-base: #0d0f1c;
-    --bg-surface:rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.07);
-    --text-primary: #e2e8f0;
+    --bg-base:        #0d0f1c;
+    --bg-surface:     rgba(255, 255, 255, 0.03);
+    --border:         rgba(255, 255, 255, 0.07);
+    --text-primary:   #e2e8f0;
     --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --accent: #6c63ff;
-    --accent2: #a78bfa;
+    --text-muted:     #64748b;
+    --accent:         #6c63ff;
+    --accent2:        #a78bfa;
 }
 
-/* GLOBAL STYLES */
+
+/* =============================================================================
+   2. Global Reset & Base Styles
+   ============================================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -22,26 +59,33 @@ body {
     width: 100%;
     height: 100%;
     min-height: 100vh;
-
     overflow: hidden;
-    /* background: var(--bg-base); */
-    background: url(/assets/background.png) center center/cover no-repeat transparent;
+
+    /* Uncomment to use a background image instead of the solid color: */
+    /* background: url(/assets/background.png) center center/cover no-repeat transparent; */
 }
 
-/* MAIN APPLICATION CONTAINER */
+
+/* =============================================================================
+   3. App Layout
+   ============================================================================= */
+
+/* Root application container — full viewport, horizontal flex */
 .tf-app {
     background: var(--bg-base);
-    opacity: 85%;
     color: var(--text-primary);
 
     display: flex;
     height: 100vh;
     width: 100vw;
-    
+
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* SIDEBAR */
+
+/* =============================================================================
+   4. Sidebar
+   ============================================================================= */
 .tf-sidebar {
     width: 200px;
     flex-shrink: 0;
@@ -55,7 +99,7 @@ body {
     border: 1px solid var(--border);
 }
 
-/* Logo [SIDEBAR] */
+/* 4a. Logo ------------------------------------------------------------------ */
 .tf-logo {
     display: flex;
     align-items: center;
@@ -63,7 +107,7 @@ body {
     padding: 4px 8px 20px 8px;
 }
 
-/* Logo: Logo-Icon [SIDEBAR]*/
+/* Logo icon — gradient square with rounded corners */
 .tf-logo-icon {
     width: 35px;
     height: 35px;
@@ -81,23 +125,22 @@ body {
     align-items: center;
 }
 
-/* Logo: Logo-Text [SIDEBAR]*/
+/* Logo text label */
 .tf-logo-text {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
 }
 
-/* Navigation [SIDEBAR] */
+/* 4b. Navigation ------------------------------------------------------------ */
 .tf-nav {
     display: flex;
     flex-direction: column;
     gap: 2px;
-
     flex: 1;
 }
 
-/* Navigation: Nav-Item [SIDEBAR] */
+/* Individual nav link */
 .tf-nav-item {
     font-size: 0.9rem;
     font-weight: 500;
@@ -105,7 +148,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    
+
     padding: 9px 12px;
     border-radius: 10px;
 
@@ -113,21 +156,24 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .tf-nav-item:hover {
     background: var(--bg-surface);
     color: var(--text-primary);
 }
+
+/* Active/selected nav item */
 .tf-nav-item.active {
     background: var(--accent);
     color: white;
 }
 
-/* Navigation: Nav-Item Icon [SIDEBAR] */
+/* Nav icon sizing */
 .tf-nav-item i {
     font-size: 1.1rem;
 }
 
-/* Upgrade [SIDEBAR] */
+/* 4c. Upgrade Banner -------------------------------------------------------- */
 .tf-upgrade {
     margin-bottom: 10px;
     padding: 12px;
@@ -137,7 +183,6 @@ body {
     border: 1px solid var(--bg-surface);
 }
 
-/* Upgrade: Upgrade-Title [SIDEBAR] */
 .tf-upgrade-title {
     display: flex;
     align-items: center;
@@ -149,16 +194,13 @@ body {
     font-weight: 700;
 }
 
-/* Upgrade: Upgrade-Text [SIDEBAR] */
 .tf-upgrade-text {
     color: var(--text-muted);
-
     font-size: 11px;
     line-height: 1.4;
     margin-bottom: 8px;
 }
 
-/* Upgrade: Upgrade-Button [SIDEBAR] */
 .tf-upgrade-btn {
     width: 100%;
     padding: 7px;
@@ -168,14 +210,13 @@ body {
 
     font-size: 12px;
     font-weight: 600;
-
     color: white;
-    background: linear-gradient(135deg, #6c63ff, #8b5cf6);
 
+    background: linear-gradient(135deg, #6c63ff, #8b5cf6);
     cursor: pointer;
 }
 
-/* User Profile [SIDEBAR] */
+/* 4d. User Profile ---------------------------------------------------------- */
 .tf-user {
     display: flex;
     align-items: center;
@@ -186,7 +227,7 @@ body {
     border: 1px solid var(--border);
 }
 
-/* Avatar [SIDEBAR] */
+/* Avatar circle */
 .tf-avatar {
     width: 32px;
     height: 32px;
@@ -194,7 +235,7 @@ body {
     border-radius: 50%;
     color: white;
     background: linear-gradient(135deg, #6c63ff, #a78bfa);
-    
+
     font-size: 12px;
     font-weight: 700;
 
@@ -203,35 +244,31 @@ body {
     justify-content: center;
 }
 
-/* User Info [SIDEBAR] */
-.tf-user-info {
-    flex: 1;
-}
+.tf-user-info { flex: 1; }
 
-/* User Name [SIDEBAR] */
 .tf-user-name {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-/* User Email [SIDEBAR] */
 .tf-user-email {
     font-size: 10px;
     color: var(--text-secondary);
 }
 
-/* MAIN CONTENT */
+
+/* =============================================================================
+   5. Main Content
+   ============================================================================= */
 .tf-main {
     flex: 1;
-
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
 }
 
-/* Topbar [MAIN CONTENT] */
+/* 5a. Topbar ---------------------------------------------------------------- */
 .tf-topbar {
     display: flex;
     align-items: center;
@@ -241,18 +278,19 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
-/* Topbar: Greeting [MAIN CONTENT] */
-.tf-greating h2{ 
+/* Greeting text block */
+.tf-greating h2 {
     font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
 }
-.tf-greating p { 
+
+.tf-greating p {
     font-size: 12px;
     color: var(--text-muted);
 }
 
-/* Topbar: Search [MAIN CONTENT] */
+/* Search input container */
 .tf-search {
     display: flex;
     align-items: center;
@@ -270,116 +308,116 @@ body {
     background: var(--bg-surface);
     border: 1px solid var(--border);
 }
+
 .tf-search input {
     width: 100%;
-
     border: none;
     outline: none;
-    
     color: var(--text-primary);
     background: transparent;
     font-size: 13px;
 }
-.tf-search input::placeholder {
-    color: var(--text-secondary);
-}
 
-/* MAIN CONTENT */
+.tf-search input::placeholder { color: var(--text-secondary); }
+
+/* 5b. Content Wrapper ------------------------------------------------------- */
+/* Scrollable area below the topbar containing stats, form, and kanban */
 .tf-content {
     flex: 1;
-
     display: flex;
     flex-direction: column;
     gap: 16px;
-
     padding: 16px 20px;
     overflow-y: auto;
 }
 
-/* Stats [MAIN CONTENT] */
+
+/* =============================================================================
+   6. Stats Cards
+   ============================================================================= */
+
+/* Four-column grid of stat cards */
 .tf-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
-/* Stats: Stat [MAIN CONTENT] */
+/* Individual stat card */
 .tf-stat {
     padding: 14px 16px;
     border-radius: 12px;
-
     background: var(--bg-surface);
     border: 1px solid var(--border);
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
-/* Stats: Stat-Label [MAIN CONTENT] */
+.tf-stat:hover { transform: translateY(); }
+
+/* Stat label row (icon + text) */
 .tf-stat-label {
     display: flex;
     align-items: center;
     gap: 5px;
-
     margin-bottom: 6px;
-
     font-size: 11px;
     color: var(--text-muted);
 }
-.tf-stat-label i {
-    font-size: 13px;
-}
 
-/* Stats: Stat-Value [MAIN CONTENT] */
+.tf-stat-label i { font-size: 13px; }
+
+/* Large numeric value */
 .tf-stat-value {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
-
     margin-bottom: 2px;
 }
 
-/* Stats: Stat-Sub [MAIN CONTENT] */
+/* Small sub-label below the value (e.g. "Good 👍") */
 .tf-stat-sub {
     font-size: 10px;
     color: var(--text-muted);
 }
 
-/* Stats: Sparkline [MAIN CONTENT] */
+/* Mini sparkline chart */
 .tf-sparkline {
     height: 28px;
     margin: 6px 0;
 }
 
-/* Stats: Stat-Progress-Bar [MAIN CONTENT] */
+/* Progress bar (used in the "Today's Progress" stat card) */
 .tf-progress-bar {
     height: 6px;
     border-radius: 99px;
-
     background: var(--border);
     overflow: hidden;
 }
-.tf-progress-fill {
-    width: 70%;
-    height: 100%;
 
+.tf-progress-fill {
+    width: 70%; /* Updated dynamically via JS */
+    height: 100%;
     border-radius: 99px;
     background: linear-gradient(90deg, #6c63ff, #a78bfa);
 }
 
-/* Add Task [MAIN CONTENT] */
+
+/* =============================================================================
+   7. Add Task Form
+   ============================================================================= */
 .tf-add-task {
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 14px;
-
     background-color: var(--bg-surface);
 }
 
+/* Form section header */
 .tf-add-header {
     display: flex;
     align-items: center;
     gap: 8px;
-
     margin-bottom: 12px;
-
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
@@ -388,41 +426,40 @@ body {
 .tf-add-header i {
     font-size: 18px;
     color: var(--accent);
-
     padding: 6px;
     border-radius: 8px;
     background: rgba(108, 99, 255, 0.15);
 }
 
-/* Add Task: Inputs [MAIN CONTENT] */
+/* Row of form inputs */
 .tf-add-inputs {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.tf-input, 
+/* Shared base styles for text inputs and select dropdowns */
+.tf-input,
 .tf-select {
     font-size: 12px;
     font-family: inherit;
-    /* color: var(--text-primary); */
-
     border: 1px solid var(--border);
     border-radius: 10px;
     outline: none;
     background: var(--bg-surface);
 }
 
-.tf-input::placeholder, #date::placeholder {
-    color: var(--text-muted);
-}
+.tf-input::placeholder,
+#date::placeholder { color: var(--text-muted); }
 
+/* Text input — grows to fill available space */
 .tf-input {
     flex: 1;
     padding: 9px 12px;
     color: var(--text-primary);
 }
 
+/* Select dropdown */
 .tf-select {
     padding: 9px 12px;
     color: var(--text-primary);
@@ -433,36 +470,34 @@ body {
     color: var(--bg-base);
 }
 
+/* Date input — muted until a value is selected */
 #date {
     flex: 1;
     color: var(--text-muted);
 }
 
-#date:valid {
-    color: var(--text-primary);
-}
+#date:valid { color: var(--text-primary); }
 
+/* Primary "Add Task" submit button */
 .tf-btn-add {
     padding: 9px 20px;
     white-space: nowrap;
     border: none;
     border-radius: 10px;
-
     font-size: 12px;
     font-weight: 600;
     color: white;
-
     background: linear-gradient(135deg, #6c63ff, #8b5cf6);
     cursor: pointer;
 }
 
-/* Add Task: Extras [MAIN CONTENT] */
+/* Optional extra fields (e.g. description textarea), shown with a slide-down animation */
 .tf-add-extra {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    animation: slideDown .2s ease;
+    animation: slideDown 0.2s ease;
 }
 
 .tf-textarea {
@@ -471,71 +506,73 @@ body {
     min-height: 60px;
 }
 
-/* KANBAN [MAIN CONTENT] */
+
+/* =============================================================================
+   8. Kanban Board
+   ============================================================================= */
+
+/* 8a. Columns --------------------------------------------------------------- */
+
+/* Three-column Kanban grid */
 .tf-kanban {
     flex: 1;
-
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 }
 
+/* Individual column */
 .tf-col {
     display: flex;
     flex-direction: column;
     gap: 10px;
-
     padding: 14px;
-
     border: 1px solid var(--border);
     border-radius: 14px;
     background: var(--bg-surface);
 }
 
+/* Highlighted state when a task is dragged over or column is active */
 .tf-col.active {
     border-color: rgba(108, 99, 255, 0.4);
     background: rgba(108, 99, 255, 0.06);
 }
 
-/* Add Task: Todo, Progress, Complete [MAIN CONTENT] */
-
-
-/* Column Header [KANBAN] [MAIN CONTENT] */
+/* 8b. Column Header --------------------------------------------------------- */
 .tf-col-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
+/* Column title with icon */
 .tf-col-title {
     display: flex;
     align-items: center;
     gap: 7px;
-
     color: var(--text-primary);
     font-size: 13px;
     font-weight: 600;
 }
+
 .tf-col-title i {
     font-size: 15px;
     color: var(--accent);
 }
 
-.tf-col.active .tf-col-title i {
-    color: var(--accent2);
-}
+.tf-col.active .tf-col-title i { color: var(--accent2); }
 
+/* Task count badge in the column header */
 .tf-col-count {
     font-size: 11px;
     font-weight: 600;
     color: var(--accent2);
-
     padding: 2px 8px;
     border-radius: 99px;
     background: rgba(108, 99, 255, 0.2);
 }
 
-/* Task Card [KANBAN] [MAIN CONTENT] */
+/* 8c. Task Cards ------------------------------------------------------------ */
 .tf-card {
     padding: 12px;
     border: 1px solid var(--border);
@@ -551,11 +588,11 @@ body {
     margin-bottom: 2px;
 }
 
+/* Status indicator — empty circle (To Do) */
 .tf-card-check {
     width: 16px;
     height: 16px;
     margin-top: 1px;
-
     flex-shrink: 0;
 
     display: flex;
@@ -564,16 +601,17 @@ body {
 
     border: 3px solid rgba(198, 17, 17, 0.919);
     border-radius: 50%;
-    
 }
 
+/* Status indicator — filled green circle with checkmark (Completed) */
 .tf-card-check.done {
     font-size: 10px;
     color: white;
-
     border-color: #22c55e;
     background: #22c55e;
 }
+
+/* Task title — strikethrough when completed */
 .tf-card-title.done {
     text-decoration: line-through;
     text-decoration-thickness: 1.3px;
@@ -581,19 +619,18 @@ body {
     opacity: 0.6;
 }
 
-
+/* Status indicator — spinning loader icon (In Progress) */
 .tf-card-check-progress {
     width: 18px;
     height: 18px;
     margin-top: 1px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     color: #a78bfa;
-    flex-shrink: 0;
-
     filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.5));
 }
 
@@ -602,108 +639,82 @@ body {
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
+/* Task title */
 .tf-card-title {
     flex: 1;
-
     margin: auto;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
+/* Optional description text below the title */
 .tf-card-desc {
     font-size: 11px;
     color: var(--text-muted);
-    padding-left: 26px;
+    padding-left: 26px; /* Aligns with title, accounting for the status indicator width */
     margin-bottom: 8px;
 }
 
+/* Card footer row — badge + date */
 .tf-card-footer {
     display: flex;
     align-items: center;
     gap: 8px;
-
     padding-left: 26px;
 }
 
-/* Badges [KANBAN] [MAIN CONTENT] */
+/* 8d. Priority Badges ------------------------------------------------------- */
 .tf-badge {
     font-size: 10px;
     font-weight: 600;
-
     padding: 2px 8px;
     border-radius: 4px;
 }
 
-.tf-badge.high {
-    background: rgba(238, 68, 68, 0.2);
-    color: #f87171;
-}
-.tf-badge.medium {
-    background: rgba(245, 158, 11, 0.2);
-    color: #fbbf24;
-}
-.tf-badge.low {
-    background: rgba(99, 102, 241, 0.2);
-    color: #818cf8;
-}
+.tf-badge.high   { background: rgba(238,  68,  68, 0.2); color: #f87171; }
+.tf-badge.medium { background: rgba(245, 158,  11, 0.2); color: #fbbf24; }
+.tf-badge.low    { background: rgba( 99, 102, 241, 0.2); color: #818cf8; }
 
-/* Date [KANBAN] [MAIN CONTENT] */
+/* 8e. Date Label ------------------------------------------------------------ */
 .tf-date {
     display: flex;
     align-items: center;
     gap: 4px;
-
     font-size: 11px;
     color: var(--text-muted);
-
     margin-left: auto;
 }
-.tf-date i {
-    font-size: 11px;
-}
 
-/* Add Link [KANBAN] [MAIN CONTENT] */
+.tf-date i { font-size: 11px; }
+
+/* 8f. Add Link -------------------------------------------------------------- */
+/* "+ Add Task" inline link at the bottom of each column */
 .tf-add-link {
     display: flex;
     align-items: center;
     gap: 5px;
-
     font-size: 11px;
     color: var(--accent);
-
     padding: 4px 0;
     cursor: pointer;
 }
 
-.tf-add-link i {
-    font-size: 13px;
-}
+.tf-add-link i { font-size: 13px; }
 
-/* Card Actions [KANBAN] [MAIN CONTENT] */
+/* 8g. Card Action Buttons --------------------------------------------------- */
 .tf-card-actions {
     display: flex;
     gap: 8px;
-
     margin-left: auto;
 }
 
 .tf-card-actions i {
     font-size: 14px;
-    /* color: var(--text-muted); */
-
     cursor: pointer;
 }
 
+/* Base circular icon button */
 .tf-action-btn {
     width: 20px;
     height: 20px;
@@ -714,60 +725,44 @@ body {
 
     border: none;
     border-radius: 50%;
-
-    /* color: var(--text-secondary); */
     background: rgba(255, 255, 255, 0.06);
 
     transition: 0.2s ease;
     cursor: pointer;
 }
 
-.tf-action-btn:hover {
-    transform: scale(1.08);
-}
+.tf-action-btn:hover { transform: scale(1.08); }
 
-.complete-btn {
-    color: #22c55e;
-    background: rgba(34, 197, 94, 0.15);
-}
-.complete-btn:hover {
-    color: var(--text-primary);
-    background: rgba(34, 197, 94, 0.457);
-}
+/* Move forward / complete button — green */
+.complete-btn              { color: #22c55e; background: rgba( 34, 197,  94, 0.15); }
+.complete-btn:hover        { color: var(--text-primary); background: rgba( 34, 197,  94, 0.46); }
 
-.back-btn {
-    color: var(--accent2);
-    background: rgba(168, 85, 247, 0.15);
-}
-.back-btn:hover {
-    color: var(--text-primary);
-    background: rgba(169, 85, 247, 0.367);
-}
+/* Move backward button — purple */
+.back-btn                  { color: var(--accent2); background: rgba(168,  85, 247, 0.15); }
+.back-btn:hover            { color: var(--text-primary); background: rgba(169,  85, 247, 0.37); }
 
-.delete-btn {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.15);
-}
-.delete-btn:hover {
-    color: var(--text-primary);
-    background: rgba(239, 68, 68, 0.495);
-}
+/* Delete button — red */
+.delete-btn                { color: #ef4444; background: rgba(239,  68,  68, 0.15); }
+.delete-btn:hover          { color: var(--text-primary); background: rgba(239,  68,  68, 0.50); }
 
-/* Dynamic Analytics [NEW]*/
+
+/* =============================================================================
+   9. Analytics Modal
+   ============================================================================= */
+
+/* Modal overlay — hidden by default, shown with .open class */
 #analytics-modal {
     position: fixed;
     inset: 0;
-    
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 100;
 }
 
-#analytics-modal.open {
-    display: flex;
-}
+#analytics-modal.open { display: flex; }
 
+/* Semi-transparent blurred backdrop */
 .modal-backdrop {
     position: absolute;
     inset: 0;
@@ -776,25 +771,26 @@ body {
     animation: fadeIn 0.2s ease;
 }
 
+/* Modal content panel */
 .modal-panel {
     position: relative;
     z-index: 1;
-    
+
     width: 420px;
     max-height: 85vh;
-
     overflow-y: auto;
+
     border-radius: 18px;
     background: #12152a;
     border: 1px solid rgba(108, 99, 255, 0.3);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
 
     animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes fadeIn {from {opacity: 0} to {opacity: 1;}}
-@keyframes slideUp { from {opacity: 0; transform: translateY(20px) scale(0.96)} to {opacity: 1; transform: translateY(0) scale(1)}}
-
+/* Sticky modal header (remains visible while scrolling body) */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -815,9 +811,7 @@ body {
     gap: 10px;
 }
 
-.modal-icon {
-    font-size: 22px;
-}
+.modal-icon  { font-size: 22px; }
 
 .modal-title {
     font-size: 15px;
@@ -825,6 +819,7 @@ body {
     color: var(--text-primary);
 }
 
+/* Close button */
 .modal-close {
     width: 30px;
     height: 30px;
@@ -835,7 +830,6 @@ body {
 
     border: none;
     border-radius: 8px;
-    
     background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
 
@@ -849,63 +843,62 @@ body {
     background: rgba(238, 68, 68, 0.2);
 }
 
-.modal-body {
-    padding: 20px;
-}
+.modal-body { padding: 20px; }
 
+/* Large headline number (e.g. "42" or "75%") */
 .modal-big-number {
     font-size: 52px;
     font-weight: 800;
     color: var(--text-primary);
-
     line-height: 1;
     margin-bottom: 6px;
 }
 
+/* Supporting description below the headline number */
 .modal-desc {
     font-size: 12px;
     color: var(--text-muted);
     margin-bottom: 18px;
 }
 
+/* Section heading inside the modal body */
 .modal-section-title {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-
     letter-spacing: 0.08em;
     color: var(--text-muted);
     margin: 18px 0 10px;
 }
 
+/* Breakdown list container (e.g. To Do / In Progress / Completed counts) */
 .modal-breakdown {
     display: flex;
     flex-direction: column;
     gap: 8px;
-
     padding: 14px;
     border: 1px solid var(--border);
     border-radius: 12px;
-
     background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 4px;    
+    margin-bottom: 4px;
 }
 
 .modal-breakdown-item {
     display: flex;
     align-items: center;
     gap: 8px;
-
     font-size: 12px;
     color: var(--text-secondary);
 }
 
+/* Count pushed to the right */
 .modal-breakdown-item strong {
     margin-left: auto;
     color: var(--text-primary);
     font-weight: 700;
 }
 
+/* Color dot indicator */
 .modal-dot {
     width: 8px;
     height: 8px;
@@ -913,6 +906,7 @@ body {
     flex-shrink: 0;
 }
 
+/* Priority distribution bar chart */
 .modal-bar-group {
     display: flex;
     flex-direction: column;
@@ -923,16 +917,17 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-
     font-size: 12px;
     color: var(--text-secondary);
 }
 
+/* Fixed-width label column */
 .modal-bar-row span:first-child {
     width: 50px;
     flex-shrink: 0;
 }
 
+/* Fixed-width count column */
 .modal-bar-row span:last-child {
     width: 24px;
     text-align: right;
@@ -940,6 +935,7 @@ body {
     font-weight: 600;
 }
 
+/* Bar track */
 .modal-bar {
     flex: 1;
     height: 8px;
@@ -948,12 +944,14 @@ body {
     overflow: hidden;
 }
 
-.modal-bar-fill{
+/* Bar fill — width and color set inline via JS */
+.modal-bar-fill {
     height: 100%;
     border-radius: 99px;
-    width: 0;
+    width: 0; /* Animated to target width on modal open */
 }
 
+/* Wider progress bar (used in "Today's Progress" modal) */
 .modal-big-bar {
     height: 14px;
     border-radius: 99px;
@@ -966,9 +964,10 @@ body {
     height: 100%;
     border-radius: 99px;
     background: linear-gradient(90deg, #6c63ff, #a78bfa);
-    width: 0;
+    width: 0; /* Animated to target width on modal open */
 }
 
+/* Circular ring chart wrapper */
 .modal-progress-ring-wrap {
     display: flex;
     justify-content: center;
@@ -980,6 +979,7 @@ body {
     height: 140px;
 }
 
+/* Task list inside modals */
 .modal-task-list {
     display: flex;
     flex-direction: column;
@@ -990,40 +990,39 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-
     padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
-
     font-size: 12px;
 }
 
+/* Colored status dot in task list rows */
 .modal-task-status {
     width: 8px;
     height: 8px;
-
     border-radius: 50%;
     flex-shrink: 0;
 }
-.modal-task-status.todo {background: #94a3b8;}
-.modal-task-status.progress {background: #a78bfa;}
-.modal-task-status.completed {background: #22c55e;}
 
+.modal-task-status.todo      { background: #94a3b8; }
+.modal-task-status.progress  { background: #a78bfa; }
+.modal-task-status.completed { background: #22c55e; }
+
+/* Task name — truncated with ellipsis on overflow */
 .modal-task-name {
     flex: 1;
     color: var(--text-primary);
     font-weight: 500;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+/* Productivity tip box */
 .modal-tip {
     font-size: 12px;
     color: var(--text-secondary);
-
     line-height: 1.5;
     border: 1px solid rgba(108, 99, 255, 0.2);
     border-radius: 10px;
@@ -1031,16 +1030,12 @@ body {
     padding: 12px 14px;
 }
 
-/* Stat hover effect */
-.tf-stat {
-    transition: border-color 0.2s ease, transform 0.2s ease;
-}
 
-.tf-stat:hover {
-    transform: translateY();
-}
+/* =============================================================================
+   10. Task Modal — Add & Edit
+   ============================================================================= */
 
-/* Task Modal (edit & add) */
+/* Overlay — hidden by default */
 #task-modal {
     display: none;
     align-items: center;
@@ -1048,41 +1043,40 @@ body {
 
     position: fixed;
     inset: 0;
-
     z-index: 1100;
 }
-#task-modal.open {display: flex;}
 
+#task-modal.open { display: flex; }
+
+/* Blurred backdrop */
 .tm-backdrop {
     position: absolute;
     inset: 0;
-
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(5px);
-
     animation: fadeIn 0.2s ease;
 }
 
+/* Floating panel */
 .tm-panel {
     position: absolute;
     width: 460px;
-
     border: 1px solid rgba(108, 99, 255, 0.35);
     border-radius: 18px;
-
     background: #12152a;
-    box-shadow: 0 32px 64px rgba(108, 99, 255, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow:
+        0 32px 64px rgba(108, 99, 255, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
     animation: slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow: hidden;
-
     z-index: 1;
 }
 
+/* Modal header bar */
 .tm-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 18px 20px 14px;
     border-bottom: 1px solid var(--border);
     background: rgba(108, 99, 255, 0.06);
@@ -1094,7 +1088,7 @@ body {
     gap: 10px;
 }
 
-.tm-mode-icon {font-size: 20px;}
+.tm-mode-icon { font-size: 20px; }
 
 .tm-title {
     font-size: 15px;
@@ -1102,40 +1096,40 @@ body {
     color: var(--text-primary);
 }
 
+/* Close (×) button */
 .tm-close {
     width: 30px;
     height: 30px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     border: none;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
-
     font-size: 16px;
     color: var(--text-secondary);
-
     cursor: pointer;
     transition: 0.2s;
 }
-.tm-close:hover {background: rgba(239, 68, 68, 0.20); color: #f87171;}
 
+.tm-close:hover { background: rgba(239, 68, 68, 0.20); color: #f87171; }
+
+/* Form body */
 .tm-body {
     display: flex;
     flex-direction: column;
     gap: 14px;
-
     padding: 20px;
 }
 
+/* Individual field group (label + input) */
 .tm-field {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
+/* Field label */
 .tm-label {
     font-size: 11px;
     font-weight: 600;
@@ -1143,72 +1137,75 @@ body {
     letter-spacing: 0.06em;
     color: var(--text-muted);
 }
-.tm-required {color: #f87171}
 
+/* Required field asterisk */
+.tm-required { color: #f87171; }
+
+/* Shared input/textarea/select style */
 .tm-input {
     width: 100%;
     padding: 10px 12px;
-
     border: 1px solid var(--border);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.04);
-
     font-size: 13px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--text-primary);
-
     outline: none;
     transition: border-color 0.2s;
 }
-.tm-input:focus {border-color: rgba(108, 99, 255, 0.6);}
-.tm-input::placeholder {color: var(--text-muted);}
-.tm-input.tm-error {border-color: #ef4444 !important; animation: shake 0.3s ease;}
 
-@keyframes shake {
-    0%, 100% {transform: translateX(0);}
-    25% {transform: translateX(-6px);}
-    75% {transform: translateX(6px);}
-}
+.tm-input:focus       { border-color: rgba(108, 99, 255, 0.6); }
+.tm-input::placeholder { color: var(--text-muted); }
 
+/* Shake + red border on validation error */
+.tm-input.tm-error    { border-color: #ef4444 !important; animation: shake 0.3s ease; }
+
+/* Resizable textarea */
 .tm-textarea {
     resize: vertical;
     min-height: 72px;
 }
 
-.tm-select {cursor: pointer;}
-.tm-select option {background: #12152a;}
+/* Select dropdown */
+.tm-select          { cursor: pointer; }
+.tm-select option   { background: #12152a; }
 
+/* Two-column grid for date + priority */
 .tm-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-/* Column picker buttons */
+/* Column picker button group */
 .tm-col-picker {
     display: flex;
     gap: 8px;
 }
 
+/* Individual column toggle button */
 .tm-col-btn {
     flex: 1;
     text-align: center;
-    
     font-family: inherit;
     font-size: 11.5px;
     font-weight: 500;
     color: var(--text-secondary);
-
     padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
-
     cursor: pointer;
     transition: all 0.2s;
 }
-.tm-col-btn:hover {border-color: rgba(108, 99, 255, 0.4); color: var(--text-primary);}
 
+.tm-col-btn:hover {
+    border-color: rgba(108, 99, 255, 0.4);
+    color: var(--text-primary);
+}
+
+/* Active/selected column button */
 .tm-col-btn.active {
     font-weight: 600;
     color: #a78bfa;
@@ -1216,63 +1213,96 @@ body {
     background: rgba(108, 99, 255, 0.18);
 }
 
-/* Footer */
+/* Modal footer — Cancel + Save buttons */
 .tm-footer {
     display: flex;
     gap: 10px;
-
     padding: 14px 20px 18px;
     border-top: 1px solid var(--border);
 }
 
+/* Cancel button */
 .tm-btn-cancel {
     flex: 1;
-
     padding: 10px;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: transparent;
-
     font-size: 13px;
     font-family: inherit;
     color: var(--text-secondary);
-
     cursor: pointer;
     transition: 0.2s;
 }
-.tm-btn-cancel:hover {background: rgba(255, 255, 255, 0.05); color: var(--text-primary);}
 
+.tm-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Save / Add Task button */
 .tm-btn-save {
     flex: 2;
-
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-
     padding: 10px;
     border: none;
     border-radius: 10px;
     background: linear-gradient(135deg, #6c63ff, #8b5cf6);
-
     font-size: 13px;
     font-family: inherit;
     font-weight: 600;
     color: white;
-
     cursor: pointer;
     transition: 0.2s;
 }
-.tm-btn-save:hover {opacity: 0.9; transform: translateY(-1px);}
-.tm-btn-save i {font-size: 15px;}
 
-/* Card body click area */
+.tm-btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+.tm-btn-save i     { font-size: 15px; }
+
+/* Clickable card body area — opens the edit modal on click */
 .tf-card-body-click {
     border-radius: 6px;
-
     cursor: pointer;
     transition: background 0.15s;
 }
-.tf-card-body-click:hover {
-    background: rgba(108, 99, 255, 0.07);
+
+.tf-card-body-click:hover { background: rgba(108, 99, 255, 0.07); }
+
+
+/* =============================================================================
+   11. Animations & Keyframes
+   ============================================================================= */
+
+/* Fade in — used by modal backdrops */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Slide up with slight overshoot — used by modal panels */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Slide down — used by collapsible form sections */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Continuous rotation — used by the "In Progress" spinner icon */
+@keyframes spin {
+    from { transform: rotate(0deg);   }
+    to   { transform: rotate(360deg); }
+}
+
+/* Horizontal shake — used on invalid form inputs */
+@keyframes shake {
+    0%,  100% { transform: translateX(0);   }
+    25%        { transform: translateX(-6px); }
+    75%        { transform: translateX( 6px); }
 }
